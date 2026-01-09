@@ -1,13 +1,11 @@
 "use client";
-
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRazorpay } from "react-razorpay";
-
 const RAZORPAY_PUBLIC_KEY_ID =
   process.env.NEXT_PUBLIC_RAZORPAY_PUBLIC_KEY_ID;
 
-export default function PaymentPage({ selectedProduct }) {
+export default function PaymentPage( ) {
   const router = useRouter();
   const { Razorpay } = useRazorpay();
 
@@ -37,7 +35,7 @@ export default function PaymentPage({ selectedProduct }) {
       setError("");
 
       const res = await fetch(
-        "https://vishwanadhbackend.vercel.app/api/users/send-otp",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/send-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -71,7 +69,7 @@ export default function PaymentPage({ selectedProduct }) {
       setError("");
 
       const res = await fetch(
-        "https://vishwanadhbackend.vercel.app/api/users/verify-otp",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -101,16 +99,14 @@ export default function PaymentPage({ selectedProduct }) {
     try {
       setLoadingPay(true);
 
-      const amount =
-        Number(
-          selectedProduct.metadata.actualprice.replace(/,/g, "")
-        ) * 100;
+      const amount = 200
 
-      const orderRes = await fetch("/api/create-order", {
+      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, currency: "INR" }),
       });
+
 
       const order = await orderRes.json();
 
@@ -119,14 +115,17 @@ export default function PaymentPage({ selectedProduct }) {
         amount,
         currency: "INR",
         name: "Booking",
-        description: selectedProduct.metadata.title,
+        description: "Event Booking Payment",
         order_id: order.id,
         prefill: {
           name: formData.name,
           email: formData.email,
           contact: formData.contact,
         },
-        handler: () => router.push("/thank-you"),
+        handler: function (response) {
+          alert("Payment Successful!");
+          router.push("/");
+        },
         theme: { color: "#4f46e5" },
       };
 

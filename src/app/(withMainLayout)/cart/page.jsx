@@ -10,7 +10,7 @@ function CartSummary() {
     (state) => state.setSelectedEvents
   );
 
-  const COUPON_MIN_AMOUNT = 2999;
+  const COUPON_MIN_AMOUNT = 1000;
   const COUPON_DISCOUNT_PERCENT = 30;
 
   const [isCouponApplied, setIsCouponApplied] = useState(false);
