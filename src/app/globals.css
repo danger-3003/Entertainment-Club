@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
+/* ============================================================
+   1. DESIGN TOKENS (RAW CSS VARIABLES)
+   Purpose: Single source of truth for values
+============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg-page: oklch(0.98 0.01 250);
+  --color-surface: oklch(1 0 0);
+  --color-border: oklch(0.9 0 0);
+
+  --color-primary-500: oklch(0.72 0.11 178);
+  --color-primary-600: oklch(0.66 0.13 178);
+
+  --color-text-primary: oklch(0.2 0 0);
+  --color-text-muted: oklch(0.45 0 0);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================================
+   2. TAILWIND THEME REGISTRATION (v4)
+   Purpose: Make tokens available to Tailwind engine
+   NOTE: This does NOT create utilities
+============================================================ */
+@theme {
+  --color-bg-page: var(--color-bg-page);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-muted: var(--color-text-muted);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   3. GLOBAL COMPONENT CLASSES
+   Purpose: Consume tokens via bracket syntax
+============================================================ */
+
+/* Layout */
+.page-container {
+  @apply min-h-screen pt-16 px-4 bg-bg-page;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Header */
+.app-header {
+  @apply fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-4 bg-surface border-b border-border;
+}
+
+.app-title {
+  @apply text-lg font-semibold text-text-primary;
+}
+
+.cart-pill {
+  @apply px-3 py-1 rounded-full text-sm font-semibold bg-primary-500 text-white;
+}
+
+/* Card */
+.event-card {
+  @apply relative overflow-hidden rounded-2xl cursor-pointer bg-surface border border-border transition-all duration-200;
+}
+
+.event-card-selected {
+  @apply border-2 border-primary-500;
+}
+
+.event-name {
+  @apply text-sm font-medium mb-1 line-clamp-2 text-text-primary;
+}
+
+.event-price {
+  @apply text-sm font-semibold text-primary-600;
+}
+
+.selected-tick {
+  @apply absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold bg-primary-500 text-white;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
 }
