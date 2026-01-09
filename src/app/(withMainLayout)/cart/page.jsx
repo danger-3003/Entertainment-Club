@@ -211,13 +211,7 @@ function CartSummary() {
                     <td>Subtotal</td>
                     <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
                   </tr>
-                  <tr>
-                    <td>GST (18%)</td>
-                    <td className="text-right py-1 text-green-600">
-                      +₹{gst.toFixed(2)}
-                    </td>
-                  </tr>
-                  {
+                    {
                     isCouponApplied &&
                     <tr>
                       <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
@@ -226,6 +220,12 @@ function CartSummary() {
                       </td>
                     </tr>
                   }
+                  <tr>
+                    <td>GST (18%)</td>
+                    <td className="text-right py-1 text-green-600">
+                      +₹{gst.toFixed(2)}
+                    </td>
+                  </tr>
                   <tr className="font-semibold">
                     <td>Total Payable</td>
                     <td className="text-right py-1 text-indigo-600">
