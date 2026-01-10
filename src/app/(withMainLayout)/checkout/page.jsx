@@ -1,38 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRazorpay } from "react-razorpay";
-import { sendOtp, verifyOtpApi, createOrderApi } from "@/services/handlers";
+import { sendOtp, verifyOtpApi, createOrderApi, eventBooking } from "@/services/handlers";
+import Cookies from "js-cookie";
 import useEventCartStore from "@/store/useEventCartStore";
+import useUserStore from "@/store/useUserStore";
 
 const RAZORPAY_PUBLIC_KEY_ID =
   process.env.NEXT_PUBLIC_RAZORPAY_PUBLIC_KEY_ID;
 export default function PaymentPage() {
   const {
     selectedEvents,
-    isCouponApplied
+    isCouponApplied,
+    resetCoupon,
+    resetSelectedEvents
   } = useEventCartStore();
 
-  const COUPON_MIN_AMOUNT = 2999;
+  const {
+    user,
+    setUser,
+    resetUser
+  } = useUserStore();
+
+  const COUPON_MIN_AMOUNT = 1000;
   const COUPON_DISCOUNT_PERCENT = 30;
+  const CURRENCY = "INR";
 
   const router = useRouter();
-  const { Razorpay } = useRazorpay();
-
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [loadingOtp, setLoadingOtp] = useState(false);
-  const [loadingPay, setLoadingPay] = useState(false);
-  const [error, setError] = useState("");
-
-  const [formData, setFormData] = useState({
-    contact: "",
-    name: "",
-    email: "",
-    address: "",
-  });
 
   const subTotal = selectedEvents.reduce(
     (sum, item) =>
@@ -55,9 +51,57 @@ export default function PaymentPage() {
   const discount = isCouponApplied && subTotal >= COUPON_MIN_AMOUNT ? subTotal * (COUPON_DISCOUNT_PERCENT / 100) : 0;
   const total = subTotal + gst - discount;
 
+  const { Razorpay } = useRazorpay();
+
+  const [token, setToken] = useState(() => Cookies.get("token"));
+
+  const [otpVerified, setOtpVerified] = useState(!!token);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [loadingOtp, setLoadingOtp] = useState(false);
+  const [loadingPay, setLoadingPay] = useState(false);
+  const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
+    bookingDate: "",
+    phone: user.mobile,
+    name: "",
+    email: "",
+    address: "",
+  });
+
+  const buildBookingPayload = (paymentResponse) => ({
+    userId: user.id,
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+
+    items: selectedEvents,
+
+    summary: {
+      subTotal,
+      gst,
+      discount,
+      total,
+      discountApplied: isCouponApplied,
+      discountPercent: isCouponApplied ? COUPON_DISCOUNT_PERCENT : 0,
+    },
+
+    payment: {
+      paymentId: paymentResponse.razorpay_payment_id,
+      orderId: paymentResponse.razorpay_order_id,
+      amount: total,
+      currency: CURRENCY,
+    },
+
+    bookingDate: new Date(formData.bookingDate).toISOString(),
+  });
+
+  const [fieldErrors, setFieldErrors] = useState({});
+
   /* ---------------- SEND OTP ---------------- */
   const handleSendOtp = async () => {
-    if (formData.contact.length !== 10) {
+    if (formData.phone.length !== 10) {
       setError("Please enter a valid 10-digit mobile number");
       return;
     }
@@ -66,7 +110,7 @@ export default function PaymentPage() {
       setLoadingOtp(true);
       setError("");
 
-      const data = await sendOtp(formData.contact);
+      const data = await sendOtp(formData.phone);
       setOtpSent(true);
 
     } catch (err) {
@@ -87,10 +131,19 @@ export default function PaymentPage() {
       setLoadingOtp(true);
       setError("");
 
-      await verifyOtpApi({
-        phone: formData.contact,
+      const response = await verifyOtpApi({
+        phone: formData.phone,
         otp,
       });
+
+      Cookies.set("token", response.token);
+      setToken(response.token);
+      setOtpVerified(true);
+
+      setUser({
+        "id": response.user._id,
+        "mobile": response.user.phone
+      })
 
       setOtpVerified(true);
     } catch (err) {
@@ -100,34 +153,80 @@ export default function PaymentPage() {
     }
   };
 
-  /* ---------------- PAYMENT ---------------- */
+  const validateFields = () => {
+    const errors = {};
+
+    if (!formData.bookingDate) errors.bookingDate = true;
+    if (!formData.phone || formData.phone.length !== 10) errors.phone = true;
+    if (!formData.name.trim()) errors.name = true;
+    if (!formData.email.trim()) errors.email = true;
+    if (!formData.address.trim()) errors.address = true;
+
+    if (!token && !otpVerified) {
+      errors.otp = true;
+      setError("Please verify your mobile number");
+    }
+
+    setFieldErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
+  const isFormValid = () => {
+    if (!formData.bookingDate) return false;
+    if (!formData.phone || formData.phone.length !== 10) return false;
+    if (!formData.name.trim()) return false;
+    if (!formData.email.trim()) return false;
+    if (!formData.address.trim()) return false;
+    return true;
+  };
+
   const handlePayment = async () => {
+    if (!validateFields()) return;
+
     try {
       setLoadingPay(true);
 
-      const amount = 200;
+      const amount = Math.round(total * 100);
 
       const order = await createOrderApi({
         amount,
-        currency: "INR",
+        currency: CURRENCY,
       });
 
       const options = {
         key: RAZORPAY_PUBLIC_KEY_ID,
         amount,
-        currency: "INR",
+        currency: CURRENCY,
         name: "Booking",
         description: "Event Booking Payment",
         order_id: order.id,
+
         prefill: {
           name: formData.name,
           email: formData.email,
-          contact: formData.contact,
+          phone: formData.phone,
         },
-        handler: function (response) {
-          alert("Payment Successful!");
-          router.push("/");
+
+        handler: async function (response) {
+          try {
+            const payload = buildBookingPayload(response);
+
+            console.log("FINAL BOOKING PAYLOAD", payload);
+
+            await eventBooking(payload);
+
+            resetCoupon();
+            resetSelectedEvents();
+
+            alert("Payment & Booking Successful!");
+            router.push("/");
+          } catch (err) {
+            console.error(err);
+            alert("Booking failed after payment");
+          }
         },
+
         theme: { color: "#4f46e5" },
       };
 
@@ -139,7 +238,6 @@ export default function PaymentPage() {
     }
   };
 
-
   return (
     <>
       <div className="max-w-7xl w-full flex flex-col gap-4 px-4 sm:px-7">
@@ -148,7 +246,7 @@ export default function PaymentPage() {
             <h2 className="text-xl font-semibold uppercase">
               Checkout
             </h2>
-            <p className="text-sm">Enjoy 30% instant discount on your total bill when you spend ₹2,999 or more.</p>
+            <p className="text-sm">Enjoy 30% instant discount on your total bill when you spend ₹999 or more.</p>
           </div>
           <img src="/CartHeader.svg" alt="CartHeader" className="w-32" />
         </div>
@@ -232,7 +330,7 @@ export default function PaymentPage() {
                         <img src="/coupon.svg" alt="Coupon Image" className="h-full w-8" />
                       </div>
                       <div className="flex items-end justify-between gap-2 flex-col">
-                        <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹2,999</p>
+                        <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹999</p>
                         <div
                           className="text-[10px] sm:text-xs font-medium rounded-full px-3 sm:px-5 py-0.5 sm:py-1 border border-white bg-white/30 hover:shadow-sm duration-300"
                         >
@@ -290,45 +388,79 @@ export default function PaymentPage() {
             <div>
               <p className="font-medium text-gray-600 uppercase text-sm pb-3">Booking Details</p>
               <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
-                <div className="relative flex items-center">
-                  <input
-                    type="tel"
-                    placeholder="Mobile Number"
-                    value={formData.contact}
-                    disabled={otpVerified}
-                    onChange={(e) =>
-                      setFormData({ ...formData, contact: e.target.value })
-                    }
-                    className="w-full border rounded-lg px-2 py-2 text-sm disabled:bg-gray-100"
-                  />
-                  {!otpSent && (
-                    <button
-                      onClick={handleSendOtp}
-                      disabled={loadingOtp || formData.contact.length < 10}
-                      className="absolute cursor-pointer disabled:cursor-not-allowed right-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full disabled:opacity-60 hover:shadow-sm duration-300"
-                    >
-                      {loadingOtp ? "Sending..." : "Send OTP"}
-                    </button>
-                  )}
-                </div>
-                {otpSent && !otpVerified && (
-                  <div className="flex flex-row items-center justify-between gap-2 mt-3">
+                <input
+                  type="date"
+                  className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
+                    ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
+                  value={formData.bookingDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bookingDate: e.target.value })
+                  }
+                />
+                {/* Show OTP section ONLY if no token */}
+                {!token && !otpVerified ? (
+                  <>
+                    <div className="relative flex items-center">
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        placeholder="Mobile number"
+                        disabled={otpVerified}
+                        className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                          ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                      />
+
+                      {!otpSent && (
+                        <button
+                          onClick={handleSendOtp}
+                          disabled={loadingOtp || formData.phone.length !== 10}
+                          className="absolute right-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
+                        >
+                          {loadingOtp ? "Sending..." : "Send OTP"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* OTP Verify */}
+                    {otpSent && !otpVerified && (
+                      <div className="flex gap-2 mt-3 items-center">
+                        <input
+                          type="number"
+                          placeholder="Enter OTP"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          className="flex-1 border rounded-lg px-2 py-1.5 text-sm"
+                        />
+                        <button
+                          onClick={verifyOtp}
+                          disabled={loadingOtp}
+                          className="text-xs bg-indigo-600 text-white px-3 py-1.5 h-min rounded-full cursor-pointer"
+                        >
+                          {loadingOtp ? "Verifying..." : "Verify"}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )
+                  :
+                  <div className="relative flex items-center">
                     <input
-                      type="number"
-                      placeholder="Enter OTP"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      className="flex-1 border rounded-lg px-4 py-2 text-sm"
+                      type="tel"
+                      value={formData.phone}
+                      className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                        ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      placeholder="Mobile Number"
+                      disabled={otpVerified || !!token}
+                      required
                     />
-                    <button
-                      onClick={verifyOtp}
-                      disabled={loadingOtp}
-                      className="h-min cursor-pointer disabled:cursor-not-allowed text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full disabled:opacity-60 hover:shadow-sm duration-300"
-                    >
-                      {loadingOtp ? "Verifying..." : "Verify"}
-                    </button>
                   </div>
-                )}
+                }
                 {otpVerified && (
                   <p className="text-green-600 text-xs text-right mt-px">
                     ✔ Mobile number verified
@@ -343,39 +475,58 @@ export default function PaymentPage() {
                   <input
                     type="text"
                     placeholder="Full Name"
-                    className="w-full border rounded-lg px-2 py-1.5 text-sm"
+                    className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                      ${fieldErrors.name ? "border-red-500" : "border-gray-300"}`}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
+                    required
                   />
                   <input
                     type="email"
                     placeholder="Email Address"
-                    className="w-full border rounded-lg px-2 py-1.5 text-sm"
+                    className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                      ${fieldErrors.email ? "border-red-500" : "border-gray-300"}`}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
+
+                    required
                   />
                   <textarea
                     rows={2}
                     placeholder="Address"
-                    className="w-full border rounded-lg px-2 py-1.5 text-sm resize-none"
+                    className={`w-full border rounded-lg px-2 py-1.5 text-sm resize-none
+                      ${fieldErrors.address ? "border-red-500" : "border-gray-300"}`}
                     onChange={(e) =>
                       setFormData({ ...formData, address: e.target.value })
                     }
+
+                    required
                   />
                 </div>
 
-                <p className="text-xs text-gray-500 text-center mt-4 mb-1">
+                <p className="text-[10px] text-center text-gray-400 mt-4 mb-1">
                   Secure payment powered by Razorpay
                 </p>
                 <button
-                  disabled={!otpVerified || loadingPay}
+                  disabled={loadingPay || !isFormValid() || (!token && !otpVerified)}
                   onClick={handlePayment}
-                  className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
+                  className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 
+                    disabled:bg-indigo-200 disabled:cursor-not-allowed 
+                    hover:shadow-md duration-300 text-white py-2 rounded-full
+                  "
                 >
                   {loadingPay ? "Processing..." : "Proceed payment"}
                 </button>
+
+                {/* <button
+                  disabled={loadingPay || (!getToken && !otpVerified) || validateFields}
+                  onClick={handlePayment}
+                  className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 disabled:cursor-not-allowed hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
+                >
+                  {loadingPay ? "Processing..." : "Proceed payment"}
+                </button> */}
                 <p className="text-[10px] text-center text-gray-400 mt-1">
                   By continuing, you agree to our Terms & Privacy Policy
                 </p>
@@ -384,111 +535,6 @@ export default function PaymentPage() {
           </div>
         </div>
       </div>
-
-      {/* <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl shadow-xl p-6 space-y-4">
-
-        <div className="text-center">
-          <h2 className="text-lg font-semibold">Complete Booking</h2>
-          <p className="text-xs text-gray-500">
-            Secure checkout powered by Razorpay
-          </p>
-        </div>
-
-
-        <div className="relative">
-          <input
-            type="tel"
-            placeholder="Mobile Number"
-            value={formData.contact}
-            disabled={otpVerified}
-            onChange={(e) =>
-              setFormData({ ...formData, contact: e.target.value })
-            }
-            className="w-full border rounded-xl px-4 py-3 text-sm disabled:bg-gray-100"
-          />
-          {!otpSent && (
-            <button
-              onClick={sendOtp}
-              disabled={loadingOtp}
-              className="absolute right-2 top-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg disabled:opacity-60"
-            >
-              {loadingOtp ? "Sending..." : "Send OTP"}
-            </button>
-          )}
-        </div>
-
-
-        {otpSent && !otpVerified && (
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="flex-1 border rounded-xl px-4 py-3 text-sm"
-            />
-            <button
-              onClick={verifyOtp}
-              disabled={loadingOtp}
-              className="bg-indigo-600 text-white px-4 rounded-xl text-sm disabled:opacity-60"
-            >
-              {loadingOtp ? "Verifying..." : "Verify"}
-            </button>
-          </div>
-        )}
-
-
-        {otpVerified && (
-          <p className="text-green-600 text-xs text-center font-medium">
-            ✔ Mobile number verified
-          </p>
-        )}
-
-        {error && (
-          <p className="text-red-500 text-xs text-center">
-            {error}
-          </p>
-        )}
-
-        <input
-          type="text"
-          placeholder="Full Name"
-          className="w-full border rounded-xl px-4 py-3 text-sm"
-          onChange={(e) =>
-            setFormData({ ...formData, name: e.target.value })
-          }
-        />
-
-        <input
-          type="email"
-          placeholder="Email Address"
-          className="w-full border rounded-xl px-4 py-3 text-sm"
-          onChange={(e) =>
-            setFormData({ ...formData, email: e.target.value })
-          }
-        />
-
-        <textarea
-          rows={2}
-          placeholder="Address"
-          className="w-full border rounded-xl px-4 py-3 text-sm resize-none"
-          onChange={(e) =>
-            setFormData({ ...formData, address: e.target.value })
-          }
-        />
-
-        <button
-          disabled={!otpVerified || loadingPay}
-          onClick={handlePayment}
-          className="w-full bg-indigo-600 text-white py-3 rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98] transition"
-        >
-          {loadingPay ? "Processing..." : "Book Now"}
-        </button>
-
-        <p className="text-[10px] text-center text-gray-400">
-          By continuing, you agree to our Terms & Privacy Policy
-        </p>
-      </div> */}
     </>
   );
 }

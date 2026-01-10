@@ -6,8 +6,6 @@ import { Plus, Check } from "lucide-react";
 
 function EventCard({ event, isSelected, onSelect, selectedEvents }) {
 
-  console.log(selectedEvents);
-
   return (
     <div
       className={`p-2 group flex flex-col gap-3 cursor-pointer`}

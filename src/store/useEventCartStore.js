@@ -21,13 +21,13 @@ const useEventCartStore = create(
 
       // coupon
       setIsCouponApplied: (value) =>
-        set({ isCouponApplied: value }),
+        set({ isCouponApplied: value && true }),
 
       resetCoupon: () =>
         set({ isCouponApplied: false }),
     }),
     {
-      name: "event-cart-storage",
+      name: "event-cart-storage-vsc",
       partialize: (state) => ({
         selectedEvents: state.selectedEvents,
         isCouponApplied: state.isCouponApplied,

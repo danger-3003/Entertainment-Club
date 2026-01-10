@@ -15,7 +15,7 @@ function CartSummary() {
     (state) => state.setSelectedEvents
   );
 
-  const COUPON_MIN_AMOUNT = 2999;
+  const COUPON_MIN_AMOUNT = 1000;
   const COUPON_DISCOUNT_PERCENT = 30;
 
   const [isCouponApplied, setIsCouponApplied] = useState(false);
@@ -84,7 +84,7 @@ function CartSummary() {
           <h2 className="text-xl font-semibold uppercase">
             Cart
           </h2>
-          <p className="text-sm">Enjoy 30% instant discount on your total bill when you spend ₹2,999 or more.</p>
+          <p className="text-sm">Enjoy 30% instant discount on your total bill when you spend ₹999 or more.</p>
         </div>
         <img src="/CartHeader.svg" alt="CartHeader" className="w-32" />
       </div>
@@ -188,7 +188,7 @@ function CartSummary() {
                       <img src="/coupon.svg" alt="Coupon Image" className="h-full w-8" />
                     </div>
                     <div className="flex items-end justify-between gap-2 flex-col">
-                      <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹2,999</p>
+                      <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹999</p>
                       <button
                         onClick={() => { setIsCouponApplied(!isCouponApplied); setCouponStore(!isCouponApplied) }}
                         className="cursor-pointer text-[10px] sm:text-xs font-medium rounded-full px-3 sm:px-5 py-0.5 sm:py-1 border border-white bg-white/30 hover:shadow-sm duration-300"
