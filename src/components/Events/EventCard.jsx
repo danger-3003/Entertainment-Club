@@ -25,8 +25,9 @@ function EventCard({ event, isSelected, onSelect, selectedEvents }) {
         <div className="w-full flex flex-col gap-3">
           {["adult", "kid"].map((type) => {
             const count = selectedEvents?.count?.[type] ?? 0;
+            if (type === "kid" && event?._id === "695e38d721458b2d10464404") return null
             return (
-              <div key={type} className="flex gap-5 items-center justify-between w-full">
+              <div key={type} className="flex gap-5 items-center justify-between w-full" >
                 <p className="uppercase font-medium text-gray-600 text-sm">{type}/s:( <span className="font-sans">₹</span>{event.pricing[type].sellingPrice}) </p>
                 <div
                   onClick={() => onSelect(event, type)}
@@ -47,7 +48,7 @@ function EventCard({ event, isSelected, onSelect, selectedEvents }) {
           })}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

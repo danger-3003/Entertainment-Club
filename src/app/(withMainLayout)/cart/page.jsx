@@ -3,14 +3,19 @@
 
 import React, { useState } from "react";
 import useEventCartStore from "@/store/useEventCartStore";
+import { useRouter } from "next/navigation";
 
 function CartSummary() {
+
+  const router = useRouter();
+
   const cartData = useEventCartStore((state) => state.selectedEvents);
+  const setCouponStore = useEventCartStore((state) => state.setIsCouponApplied);
   const setSelectedEvents = useEventCartStore(
     (state) => state.setSelectedEvents
   );
 
-  const COUPON_MIN_AMOUNT = 1000;
+  const COUPON_MIN_AMOUNT = 2999;
   const COUPON_DISCOUNT_PERCENT = 30;
 
   const [isCouponApplied, setIsCouponApplied] = useState(false);
@@ -115,41 +120,44 @@ function CartSummary() {
 
                         <td className="px-6 py-3 w-32">
                           <div className="flex flex-col gap-2">
-                            {["adult", "kid"].map((type) => (
-                              <div
-                                key={type}
-                                className="flex justify-between items-center gap-5"
-                              >
-                                <span className="uppercase text-xs text-gray-600">
-                                  {type}
-                                </span>
-
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    className="size-6 bg-indigo-600 text-white rounded-full disabled:opacity-50"
-                                    disabled={item.count[type] === 0}
-                                    onClick={() =>
-                                      handleDecreaseCount(item.id, type)
-                                    }
-                                  >
-                                    -
-                                  </button>
-
-                                  <span className="w-4 text-center">
-                                    {item.count[type]}
+                            {["adult", "kid"].map((type) => {
+                              if (type === "kid" && item?.id === "695e38d721458b2d10464404") return null
+                              return (
+                                <div
+                                  key={type}
+                                  className="flex justify-between items-center gap-5"
+                                >
+                                  <span className="uppercase text-xs text-gray-600">
+                                    {type}
                                   </span>
 
-                                  <button
-                                    className="size-6 bg-indigo-600 text-white rounded-full"
-                                    onClick={() =>
-                                      handleIncreaseCount(item.id, type)
-                                    }
-                                  >
-                                    +
-                                  </button>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      className="size-6 bg-indigo-600 text-white rounded-full disabled:opacity-50"
+                                      disabled={item.count[type] === 0}
+                                      onClick={() =>
+                                        handleDecreaseCount(item.id, type)
+                                      }
+                                    >
+                                      -
+                                    </button>
+
+                                    <span className="w-4 text-center">
+                                      {item.count[type]}
+                                    </span>
+
+                                    <button
+                                      className="size-6 bg-indigo-600 text-white rounded-full"
+                                      onClick={() =>
+                                        handleIncreaseCount(item.id, type)
+                                      }
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              )
+                            })}
                           </div>
                         </td>
 
@@ -182,7 +190,7 @@ function CartSummary() {
                     <div className="flex items-end justify-between gap-2 flex-col">
                       <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹2,999</p>
                       <button
-                        onClick={() => { setIsCouponApplied(!isCouponApplied) }}
+                        onClick={() => { setIsCouponApplied(!isCouponApplied); setCouponStore(!isCouponApplied) }}
                         className="cursor-pointer text-[10px] sm:text-xs font-medium rounded-full px-3 sm:px-5 py-0.5 sm:py-1 border border-white bg-white/30 hover:shadow-sm duration-300"
                       >
                         {isCouponApplied ? "Applied" : "Apply"}
@@ -211,7 +219,7 @@ function CartSummary() {
                     <td>Subtotal</td>
                     <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
                   </tr>
-                    {
+                  {
                     isCouponApplied &&
                     <tr>
                       <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
@@ -235,7 +243,10 @@ function CartSummary() {
                 </tbody>
               </table>
 
-              <button className="mt-4 text-sm w-full bg-indigo-600 hover:bg-indigo-700 hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer">
+              <button
+                onClick={() => { router.push("/checkout") }}
+                className="mt-4 text-sm w-full bg-indigo-600 hover:bg-indigo-700 hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
+              >
                 Proceed to Checkout
               </button>
             </div>

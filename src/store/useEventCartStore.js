@@ -5,7 +5,9 @@ const useEventCartStore = create(
   persist(
     (set) => ({
       selectedEvents: [],
+      isCouponApplied: false,
 
+      // events
       setSelectedEvents: (updater) =>
         set((state) => ({
           selectedEvents:
@@ -17,12 +19,18 @@ const useEventCartStore = create(
       resetSelectedEvents: () =>
         set({ selectedEvents: [] }),
 
+      // coupon
+      setIsCouponApplied: (value) =>
+        set({ isCouponApplied: value }),
+
+      resetCoupon: () =>
+        set({ isCouponApplied: false }),
     }),
     {
       name: "event-cart-storage",
       partialize: (state) => ({
         selectedEvents: state.selectedEvents,
-        count: state.count,
+        isCouponApplied: state.isCouponApplied,
       }),
     }
   )
