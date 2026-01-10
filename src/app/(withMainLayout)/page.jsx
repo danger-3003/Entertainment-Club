@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { getAllEvents } from "@/services/handlers";
 import useEventCartStore from "@/store/useEventCartStore";
 import CardSwiper from "@/components/swiper/CardSwiper";
+import Hero from "@/components/structure/Hero";
+import Gallery from "@/components/structure/Gallery";
 
 function Page() {
   const {
@@ -70,20 +72,29 @@ function Page() {
     selectedEvents.some((e) => e.id === id);
 
   return (
-    <div className="max-w-7xl w-full flex flex-col gap-10 px-5">
-
-      {categories.map((category) => (
-        <section key={category.categoryCode}>
-          <h2>{category.categoryName}</h2>
-          <CardSwiper
-            selectedEvents={selectedEvents}
-            category={category}
-            isSelected={isSelected}
-            onSelect={toggleSelectEvent}
-          />
-        </section>
-      ))}
-    </div>
+    <>
+      <div className="w-screen flex flex-col items-center gap-10">
+        <div className="w-full">
+          <Hero />
+        </div>
+        <div className="max-w-5xl w-full flex flex-col gap-10 px-5 my-5 sm:my-10">
+          {categories.map((category) => (
+            <section key={category.categoryCode}>
+              <h2 className="flex items-center text-center w-full justify-center text-indigo-500 font-bold uppercase text-3xl md:text-4xl mb-5">{category.categoryName}</h2>
+              <CardSwiper
+                selectedEvents={selectedEvents}
+                category={category}
+                isSelected={isSelected}
+                onSelect={toggleSelectEvent}
+              />
+            </section>
+          ))}
+        </div>
+        <div className="max-w-5xl w-full flex items-center justify-center flex-col px-5 gap-5 mb-10">
+          <Gallery />
+        </div>
+      </div>
+    </>
   );
 }
 

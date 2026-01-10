@@ -240,7 +240,7 @@ export default function PaymentPage() {
 
   return (
     <>
-      <div className="max-w-7xl w-full flex flex-col gap-4 px-4 sm:px-7">
+      <div className="max-w-5xl w-full flex flex-col gap-4 px-4 sm:px-7 mb-10 mt-24">
         <div className="h-32 p-2 px-5 w-full bg-gray-100 rounded-xl shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold uppercase">

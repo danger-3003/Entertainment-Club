@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React from "react";
@@ -21,19 +22,17 @@ function MainLayout({ children }) {
     <div className="w-full flex items-center justify-center">
       {/* Header */}
       <header className="fixed top-3 w-full z-10 bg-transparent flex items-center justify-center">
-        <div className="w-full max-w-7xl bg-white/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
-          <h1 className="text-2xl font-semibold text-indigo-600 tracking-widest">
-            Events
-          </h1>
+        <div className="w-full max-w-5xl bg-black/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
+          <img src="https://www.vishwanadhsportsclub.in/assets/logo-HJQU3g0R.png" alt="Logo" className="w-10"/>
 
           <div className="flex items-center gap-3">
-            <div className="text-sm cursor-pointer group text-center">
+            <div className="text-sm cursor-pointer group text-center text-white">
               My Orders
               <div className="w-0 group-hover:w-full bg-indigo-600 h-0.5 rounded-full duration-300"></div>
             </div>
 
             <div
-              className="rounded-lg bg-white text-indigo-600 size-8 hover:shadow-md shadow-black/20 duration-300 relative flex items-center justify-center cursor-pointer"
+              className="rounded-lg text-white size-8 relative flex items-center justify-center cursor-pointer"
               onClick={() => { totalCount > 0 && router.push("/cart") }}
             >
               {totalCount > 0 && (
@@ -42,15 +41,12 @@ function MainLayout({ children }) {
                 </div>
               )}
 
-              <ShoppingCart size={18} />
+              <ShoppingCart size={18} className="text-white"/>
             </div>
           </div>
         </div>
-      </header >
-
-      <div className="w-full mt-20 flex items-center justify-center">
-        {children}
-      </div>
+      </header>
+      {children}
     </div >
   );
 }
