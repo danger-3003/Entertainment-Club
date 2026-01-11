@@ -93,7 +93,7 @@ function Page() {
         <div className="w-full">
           <Hero />
         </div>
-        <div id="events" className="max-w-5xl w-full flex flex-col gap-10 px-5 my-5 sm:my-10">
+        <div id="events" className="max-w-5xl w-full flex flex-col gap-10 px-4 sm:px-7 my-5 sm:my-10">
           {categories.map((category) => (
             <section key={category.categoryCode}>
               <h2 className="flex items-center text-center w-full justify-center text-indigo-500 font-bold uppercase text-3xl md:text-4xl mb-5">{category.categoryName}</h2>
@@ -112,7 +112,7 @@ function Page() {
       </div>
       {
         booking &&
-        <div className="w-full h-screen bg-black/50 fixed top-0 z-10 flex items-center justify-center">
+        <div className="w-full h-screen bg-black/80 fixed top-0 z-10 flex items-center justify-center">
           <div className="bg-white rounded-xl md:rounded-2xl w-80 h-60 p-5 shadow-2xl flex items-center justify-center flex-col gap-5">
             <p className="text-center">Booking successful! Your ticket has been sent to your email.</p>
             <button

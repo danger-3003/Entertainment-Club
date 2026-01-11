@@ -21,12 +21,14 @@ function MainLayout({ children }) {
   return (
     <div className="w-full flex items-center justify-center">
       {/* Header */}
-      <header className="fixed top-3 w-full z-10 bg-transparent flex items-center justify-center">
-        <div className="w-full max-w-5xl bg-black/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
-          <img src="https://www.vishwanadhsportsclub.in/assets/logo-HJQU3g0R.png" alt="Logo" className="w-10"/>
+      <header className="fixed top-3 max-w-5xl w-full z-10 bg-transparent flex items-center justify-center px-4 sm:px-7">
+        <div className="w-full bg-black/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
+          <a href="https://www.vishwanadhsportsclub.in/" target="_blank">
+            <img src="https://www.vishwanadhsportsclub.in/assets/logo-HJQU3g0R.png" alt="Logo" className="w-10" />
+          </a>
 
           <div className="flex items-center gap-3">
-            <div className="text-sm cursor-pointer group text-center text-white">
+            <div onClick={() => { router.push("/my-orders") }} className="text-sm cursor-pointer group text-center text-white">
               My Orders
               <div className="w-0 group-hover:w-full bg-indigo-600 h-0.5 rounded-full duration-300"></div>
             </div>
@@ -41,7 +43,7 @@ function MainLayout({ children }) {
                 </div>
               )}
 
-              <ShoppingCart size={18} className="text-white"/>
+              <ShoppingCart size={18} className="text-white" />
             </div>
           </div>
         </div>

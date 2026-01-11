@@ -82,10 +82,10 @@ export default function PaymentPage() {
     items: selectedEvents,
 
     summary: {
-      subTotal,
-      gst,
-      discount,
-      total,
+      subTotal: subTotal.toFixed(2),
+      gst: gst.toFixed(2),
+      discount: discount.toFixed(2),
+      total: total.toFixed(2),
       discountApplied: isCouponApplied,
       discountPercent: isCouponApplied ? COUPON_DISCOUNT_PERCENT : 0,
     },
@@ -520,7 +520,7 @@ export default function PaymentPage() {
                     <button
                       disabled={loadingPay || !isFormValid() || (!token && !otpVerified)}
                       onClick={handlePayment}
-                      className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 
+                      className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 cursor-pointer
                     disabled:bg-indigo-200 disabled:cursor-not-allowed 
                     hover:shadow-md duration-300 text-white py-2 rounded-full
                   "

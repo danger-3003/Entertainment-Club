@@ -27,3 +27,8 @@ export const eventBooking = async (payload) => {
   const response = await axiosInstance.post(API_URLS.booking, payload);
   return response.data;
 }
+
+export const getUserBookings = async (userId) => {
+  const response = await axiosInstance.get(API_URLS.userBookings(userId));
+  return response.data;
+};

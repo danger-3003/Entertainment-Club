@@ -3,5 +3,6 @@ export const API_URLS = {
   sendOtp: "users/send-otp",
   verifyOtp: "users/verify-otp",
   createOrder: "users/create-order",
-  booking: "bookings/book"
+  booking: "bookings/book",
+  userBookings: (userId) => `bookings/user/${userId}`,
 };
