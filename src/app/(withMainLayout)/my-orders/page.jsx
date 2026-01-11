@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getUserBookings } from "@/services/handlers";
 import { Download } from "lucide-react";
 import useUserStore from "@/store/useUserStore";
@@ -8,6 +9,7 @@ import useUserStore from "@/store/useUserStore";
 const Page = () => {
 
   const { user } = useUserStore();
+  const router = useRouter();
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -111,6 +113,7 @@ const Page = () => {
             </table>
           </div>
         </div>
+        <p className="underline cursor-pointer text-indigo-600 text-sm" onClick={() => { router.push("/") }}>Go home to book more.</p>
       </div>
     </>
   );
