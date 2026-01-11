@@ -113,7 +113,7 @@ function Page() {
       {
         booking &&
         <div className="w-full h-screen bg-black/80 fixed top-0 z-10 flex items-center justify-center">
-          <div className="bg-white rounded-xl md:rounded-2xl w-80 h-60 p-5 shadow-2xl flex items-center justify-center flex-col gap-5">
+          <div className="bg-white rounded-xl md:rounded-2xl w-60 sm:w-80 h-40 p-5 shadow-2xl flex items-center justify-center flex-col gap-5">
             <p className="text-center">Booking successful! Your ticket has been sent to your email.</p>
             <button
               onClick={handleClosePopUp}
