@@ -91,89 +91,92 @@ function CartSummary() {
 
       <div className="flex flex-col md:flex-row gap-5">
         {/* TABLE */}
-        <div className="overflow-hidden rounded-xl shadow-sm w-full h-min">
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white border-collapse">
-              <thead className="bg-gray-100 text-gray-600">
-                <tr className="text-sm">
-                  <th className="px-6 py-3 text-left font-medium">Name</th>
-                  <th className="px-6 py-3 text-center font-medium">Count</th>
-                  <th className="px-6 py-3 text-center font-medium">Amount</th>
-                </tr>
-              </thead>
+        <div className="w-full">
+          <div className="overflow-hidden rounded-xl shadow-sm w-full h-min">
+            <div className="overflow-x-auto">
+              <table className="w-full bg-white border-collapse">
+                <thead className="bg-gray-100 text-gray-600">
+                  <tr className="text-sm">
+                    <th className="px-6 py-3 text-left font-medium">Name</th>
+                    <th className="px-6 py-3 text-center font-medium">Count</th>
+                    <th className="px-6 py-3 text-center font-medium">Amount</th>
+                  </tr>
+                </thead>
 
-              {cartData.length > 0 ?
-                <tbody>
-                  {cartData.map((item) => {
-                    const itemTotal =
-                      item.pricing.adult * item.count.adult +
-                      item.pricing.kid * item.count.kid;
+                {cartData.length > 0 ?
+                  <tbody>
+                    {cartData.map((item) => {
+                      const itemTotal =
+                        item.pricing.adult * item.count.adult +
+                        item.pricing.kid * item.count.kid;
 
-                    return (
-                      <tr
-                        key={item.id}
-                        className="border-t border-gray-200 text-sm hover:bg-gray-50"
-                      >
-                        <td className="px-6 py-3 font-medium">
-                          {item.name}
-                        </td>
+                      return (
+                        <tr
+                          key={item.id}
+                          className="border-t border-gray-200 text-sm hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-3 font-medium">
+                            {item.name}
+                          </td>
 
-                        <td className="px-6 py-3 w-32">
-                          <div className="flex flex-col gap-2">
-                            {["adult", "kid"].map((type) => {
-                              if (type === "kid" && item?.id === "695e38d721458b2d10464404") return null
-                              return (
-                                <div
-                                  key={type}
-                                  className="flex justify-between items-center gap-5"
-                                >
-                                  <span className="uppercase text-xs text-gray-600">
-                                    {type}
-                                  </span>
-
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      className="size-6 bg-indigo-600 text-white rounded-full disabled:opacity-50"
-                                      disabled={item.count[type] === 0}
-                                      onClick={() =>
-                                        handleDecreaseCount(item.id, type)
-                                      }
-                                    >
-                                      -
-                                    </button>
-
-                                    <span className="w-4 text-center">
-                                      {item.count[type]}
+                          <td className="px-6 py-3 w-32">
+                            <div className="flex flex-col gap-2">
+                              {["adult", "kid"].map((type) => {
+                                if (type === "kid" && item?.id === "695e38d721458b2d10464404") return null
+                                return (
+                                  <div
+                                    key={type}
+                                    className="flex justify-between items-center gap-5"
+                                  >
+                                    <span className="uppercase text-xs text-gray-600">
+                                      {type}
                                     </span>
 
-                                    <button
-                                      className="size-6 bg-indigo-600 text-white rounded-full"
-                                      onClick={() =>
-                                        handleIncreaseCount(item.id, type)
-                                      }
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </td>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        className="size-6 bg-indigo-600 text-white rounded-full disabled:opacity-50"
+                                        disabled={item.count[type] === 0}
+                                        onClick={() =>
+                                          handleDecreaseCount(item.id, type)
+                                        }
+                                      >
+                                        -
+                                      </button>
 
-                        <td className="px-6 py-3 text-center font-semibold text-indigo-600">
-                          ₹{itemTotal}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody> :
-                <tbody>
-                  <tr><td colSpan={3} className="text-center py-3 text-sm">No Items to show</td></tr>
-                </tbody>
-              }
-            </table>
+                                      <span className="w-4 text-center">
+                                        {item.count[type]}
+                                      </span>
+
+                                      <button
+                                        className="size-6 bg-indigo-600 text-white rounded-full"
+                                        onClick={() =>
+                                          handleIncreaseCount(item.id, type)
+                                        }
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-3 text-center font-semibold text-indigo-600">
+                            ₹{itemTotal}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody> :
+                  <tbody>
+                    <tr><td colSpan={3} className="text-center py-3 text-sm">No Items to show</td></tr>
+                  </tbody>
+                }
+              </table>
+            </div>
           </div>
+          <p className="mt-3 underline cursor-pointer text-indigo-600 text-sm" onClick={() => { router.push("/") }}>Go home to book more.</p>
         </div>
 
         {/* SUMMARY */}
@@ -204,53 +207,56 @@ function CartSummary() {
               }
             </div>
           </div>
-          <div>
-            <p className="font-medium text-gray-600 uppercase text-sm pb-3">Payment Summary</p>
-            <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr>
-                    <td>Total Count</td>
-                    <td className="text-right py-1">
-                      {totalCount.adult} (A), {totalCount.kid} (K)
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Subtotal</td>
-                    <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
-                  </tr>
-                  {
-                    isCouponApplied &&
+          {
+            cartData.length > 0 &&
+            <div>
+              <p className="font-medium text-gray-600 uppercase text-sm pb-3">Payment Summary</p>
+              <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                <table className="w-full text-sm">
+                  <tbody>
                     <tr>
-                      <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
-                      <td className="text-right py-1 text-red-500">
-                        -₹{discount.toFixed(2)}
+                      <td>Total Count</td>
+                      <td className="text-right py-1">
+                        {totalCount.adult} (A), {totalCount.kid} (K)
                       </td>
                     </tr>
-                  }
-                  <tr>
-                    <td>GST (18%)</td>
-                    <td className="text-right py-1 text-green-600">
-                      +₹{gst.toFixed(2)}
-                    </td>
-                  </tr>
-                  <tr className="font-semibold">
-                    <td>Total Payable</td>
-                    <td className="text-right py-1 text-indigo-600">
-                      ₹{total.toFixed(2)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    <tr>
+                      <td>Subtotal</td>
+                      <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
+                    </tr>
+                    {
+                      isCouponApplied &&
+                      <tr>
+                        <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
+                        <td className="text-right py-1 text-red-500">
+                          -₹{discount.toFixed(2)}
+                        </td>
+                      </tr>
+                    }
+                    <tr>
+                      <td>GST (18%)</td>
+                      <td className="text-right py-1 text-green-600">
+                        +₹{gst.toFixed(2)}
+                      </td>
+                    </tr>
+                    <tr className="font-semibold">
+                      <td>Total Payable</td>
+                      <td className="text-right py-1 text-indigo-600">
+                        ₹{total.toFixed(2)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-              <button
-                onClick={() => { router.push("/checkout") }}
-                className="mt-4 text-sm w-full bg-indigo-600 hover:bg-indigo-700 hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
+                <button
+                  onClick={() => { router.push("/checkout") }}
+                  className="mt-4 text-sm w-full bg-indigo-600 hover:bg-indigo-700 hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
+                >
+                  Proceed to Checkout
+                </button>
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
     </div>

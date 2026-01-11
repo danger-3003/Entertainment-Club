@@ -27,11 +27,12 @@ function Hero() {
               Your Ultimate Adventure and Sports Destination
             </p>
             <div className="flex items-center justify-center flex-row mt-5">
-              <button
-                className="text-sm w-40 bg-white py-2 rounded-full cursor-pointer text-indigo-600 font-semibold"
+              <a
+                href='#events'
+                className="text-sm w-40 bg-white py-2 rounded-full text-center cursor-pointer text-indigo-600 font-semibold"
               >
                 Book Now
-              </button>
+              </a>
             </div>
           </div>
         </div>

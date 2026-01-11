@@ -6,12 +6,18 @@ import useEventCartStore from "@/store/useEventCartStore";
 import CardSwiper from "@/components/swiper/CardSwiper";
 import Hero from "@/components/structure/Hero";
 import Gallery from "@/components/structure/Gallery";
+import useBookingStatus from "@/store/useBookingStatus";
 
 function Page() {
   const {
     selectedEvents,
     setSelectedEvents
   } = useEventCartStore();
+
+  const {
+    booking,
+    resetBooking
+  } = useBookingStatus();
 
   const [categories, setCategories] = useState([]);
 
@@ -27,6 +33,12 @@ function Page() {
 
     fetchEvents();
   }, []);
+
+  // useEffect(() => {
+  //   if (booking) {
+  //     resetBooking()
+  //   }
+  // }, [booking]);
 
   const toggleSelectEvent = (event, type) => {
     setSelectedEvents((prev) => {
@@ -71,13 +83,17 @@ function Page() {
   const isSelected = (id) =>
     selectedEvents.some((e) => e.id === id);
 
+  const handleClosePopUp = () => {
+    resetBooking();
+  }
+
   return (
     <>
       <div className="w-screen flex flex-col items-center gap-10">
         <div className="w-full">
           <Hero />
         </div>
-        <div className="max-w-5xl w-full flex flex-col gap-10 px-5 my-5 sm:my-10">
+        <div id="events" className="max-w-5xl w-full flex flex-col gap-10 px-5 my-5 sm:my-10">
           {categories.map((category) => (
             <section key={category.categoryCode}>
               <h2 className="flex items-center text-center w-full justify-center text-indigo-500 font-bold uppercase text-3xl md:text-4xl mb-5">{category.categoryName}</h2>
@@ -94,6 +110,21 @@ function Page() {
           <Gallery />
         </div>
       </div>
+      {
+        booking &&
+        <div className="w-full h-screen bg-black/50 fixed top-0 z-10 flex items-center justify-center">
+          <div className="bg-white rounded-xl md:rounded-2xl w-80 h-60 p-5 shadow-2xl flex items-center justify-center flex-col gap-5">
+            <p className="text-center">Booking successful! Your ticket has been sent to your email.</p>
+            <button
+              onClick={handleClosePopUp}
+              className="text-sm w-32 bg-indigo-600 hover:bg-indigo-700 cursor-pointer
+              hover:shadow-md duration-300 text-white py-1.5 rounded-full"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      }
     </>
   );
 }

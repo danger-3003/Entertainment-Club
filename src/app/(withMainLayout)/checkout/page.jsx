@@ -7,6 +7,7 @@ import { sendOtp, verifyOtpApi, createOrderApi, eventBooking } from "@/services/
 import Cookies from "js-cookie";
 import useEventCartStore from "@/store/useEventCartStore";
 import useUserStore from "@/store/useUserStore";
+import useBookingStatus from "@/store/useBookingStatus";
 
 const RAZORPAY_PUBLIC_KEY_ID =
   process.env.NEXT_PUBLIC_RAZORPAY_PUBLIC_KEY_ID;
@@ -23,6 +24,8 @@ export default function PaymentPage() {
     setUser,
     resetUser
   } = useUserStore();
+
+  const { setBooking } = useBookingStatus();
 
   const COUPON_MIN_AMOUNT = 1000;
   const COUPON_DISCOUNT_PERCENT = 30;
@@ -212,14 +215,13 @@ export default function PaymentPage() {
           try {
             const payload = buildBookingPayload(response);
 
-            console.log("FINAL BOOKING PAYLOAD", payload);
-
             await eventBooking(payload);
 
             resetCoupon();
             resetSelectedEvents();
 
             alert("Payment & Booking Successful!");
+            setBooking(true);
             router.push("/");
           } catch (err) {
             console.error(err);
@@ -252,70 +254,73 @@ export default function PaymentPage() {
         </div>
         <div className="flex flex-col md:flex-row gap-5">
           {/* TABLE */}
-          <div className="overflow-hidden rounded-xl shadow-sm w-full h-min">
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white border-collapse">
-                <thead className="bg-gray-100 text-gray-600">
-                  <tr className="text-sm">
-                    <th className="px-6 py-3 text-left font-medium">Name</th>
-                    <th className="px-6 py-3 text-center font-medium">Count</th>
-                    <th className="px-6 py-3 text-center font-medium">Amount</th>
-                  </tr>
-                </thead>
+          <div className="w-full">
+            <div className="overflow-hidden rounded-xl shadow-sm w-full h-min">
+              <div className="overflow-x-auto">
+                <table className="w-full bg-white border-collapse">
+                  <thead className="bg-gray-100 text-gray-600">
+                    <tr className="text-sm">
+                      <th className="px-6 py-3 text-left font-medium">Name</th>
+                      <th className="px-6 py-3 text-center font-medium">Count</th>
+                      <th className="px-6 py-3 text-center font-medium">Amount</th>
+                    </tr>
+                  </thead>
 
-                {selectedEvents.length > 0 ?
-                  <tbody>
-                    {selectedEvents.map((item) => {
-                      const itemTotal =
-                        item.pricing.adult * item.count.adult +
-                        item.pricing.kid * item.count.kid;
+                  {selectedEvents.length > 0 ?
+                    <tbody>
+                      {selectedEvents.map((item) => {
+                        const itemTotal =
+                          item.pricing.adult * item.count.adult +
+                          item.pricing.kid * item.count.kid;
 
-                      return (
-                        <tr
-                          key={item.id}
-                          className="border-t border-gray-200 text-sm hover:bg-gray-50"
-                        >
-                          <td className="px-6 py-3 font-medium">
-                            {item.name}
-                          </td>
+                        return (
+                          <tr
+                            key={item.id}
+                            className="border-t border-gray-200 text-sm hover:bg-gray-50"
+                          >
+                            <td className="px-6 py-3 font-medium">
+                              {item.name}
+                            </td>
 
-                          <td className="px-6 py-3 w-32">
-                            <div className="flex flex-col gap-2">
-                              {["adult", "kid"].map((type) => {
-                                if (type === "kid" && item?.id === "695e38d721458b2d10464404") return null
-                                return (
-                                  <div
-                                    key={type}
-                                    className="flex justify-between items-center gap-5"
-                                  >
-                                    <span className="uppercase text-xs text-gray-600">
-                                      {type}
-                                    </span>
-
-                                    <div className="flex items-center gap-2">
-                                      <span className="w-4 text-center">
-                                        {item.count[type]}
+                            <td className="px-6 py-3 w-32">
+                              <div className="flex flex-col gap-2">
+                                {["adult", "kid"].map((type) => {
+                                  if (type === "kid" && item?.id === "695e38d721458b2d10464404") return null
+                                  return (
+                                    <div
+                                      key={type}
+                                      className="flex justify-between items-center gap-5"
+                                    >
+                                      <span className="uppercase text-xs text-gray-600">
+                                        {type}
                                       </span>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          </td>
 
-                          <td className="px-6 py-3 text-center font-semibold text-indigo-600">
-                            ₹{itemTotal}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody> :
-                  <tbody>
-                    <tr><td colSpan={3} className="text-center py-3 text-sm">No Items to show</td></tr>
-                  </tbody>
-                }
-              </table>
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-4 text-center">
+                                          {item.count[type]}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </td>
+
+                            <td className="px-6 py-3 text-center font-semibold text-indigo-600">
+                              ₹{itemTotal}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody> :
+                    <tbody>
+                      <tr><td colSpan={3} className="text-center py-3 text-sm">No Items to show</td></tr>
+                    </tbody>
+                  }
+                </table>
+              </div>
             </div>
+            <p className="mt-3 underline cursor-pointer text-indigo-600 text-sm" onClick={() => { router.push("/") }}>Go home to book more.</p>
           </div>
 
           {/* SUMMARY */}
@@ -345,193 +350,198 @@ export default function PaymentPage() {
                 }
               </div>
             </div>
-            <div>
-              <p className="font-medium text-gray-600 uppercase text-sm pb-3">Payment Summary</p>
-              <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
-                <table className="w-full text-sm">
-                  <tbody>
-                    <tr>
-                      <td>Total Count</td>
-                      <td className="text-right py-1">
-                        {totalCount.adult} (A), {totalCount.kid} (K)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Subtotal</td>
-                      <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
-                    </tr>
-                    {
-                      isCouponApplied &&
-                      <tr>
-                        <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
-                        <td className="text-right py-1 text-red-500">
-                          -₹{discount.toFixed(2)}
-                        </td>
-                      </tr>
-                    }
-                    <tr>
-                      <td>GST (18%)</td>
-                      <td className="text-right py-1 text-green-600">
-                        +₹{gst.toFixed(2)}
-                      </td>
-                    </tr>
-                    <tr className="font-semibold">
-                      <td>Total Payable</td>
-                      <td className="text-right py-1 text-indigo-600">
-                        ₹{total.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div>
-              <p className="font-medium text-gray-600 uppercase text-sm pb-3">Booking Details</p>
-              <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
-                <input
-                  type="date"
-                  className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
-                    ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
-                  value={formData.bookingDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, bookingDate: e.target.value })
-                  }
-                />
-                {/* Show OTP section ONLY if no token */}
-                {!token && !otpVerified ? (
-                  <>
-                    <div className="relative flex items-center">
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        placeholder="Mobile number"
-                        disabled={otpVerified}
-                        className={`w-full border rounded-lg px-2 py-1.5 text-sm
-                          ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
+            {
+              selectedEvents.length > 0 &&
+              <>
+                <div>
+                  <p className="font-medium text-gray-600 uppercase text-sm pb-3">Payment Summary</p>
+                  <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                    <table className="w-full text-sm">
+                      <tbody>
+                        <tr>
+                          <td>Total Count</td>
+                          <td className="text-right py-1">
+                            {totalCount.adult} (A), {totalCount.kid} (K)
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Subtotal</td>
+                          <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
+                        </tr>
+                        {
+                          isCouponApplied &&
+                          <tr>
+                            <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
+                            <td className="text-right py-1 text-red-500">
+                              -₹{discount.toFixed(2)}
+                            </td>
+                          </tr>
                         }
-                      />
+                        <tr>
+                          <td>GST (18%)</td>
+                          <td className="text-right py-1 text-green-600">
+                            +₹{gst.toFixed(2)}
+                          </td>
+                        </tr>
+                        <tr className="font-semibold">
+                          <td>Total Payable</td>
+                          <td className="text-right py-1 text-indigo-600">
+                            ₹{total.toFixed(2)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-600 uppercase text-sm pb-3">Booking Details</p>
+                  <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                    <input
+                      type="date"
+                      className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
+                    ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
+                      value={formData.bookingDate}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bookingDate: e.target.value })
+                      }
+                    />
+                    {/* Show OTP section ONLY if no token */}
+                    {!token && !otpVerified ? (
+                      <>
+                        <div className="relative flex items-center">
+                          <input
+                            type="tel"
+                            value={formData.phone}
+                            placeholder="Mobile number"
+                            disabled={otpVerified}
+                            className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                          ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
+                            onChange={(e) =>
+                              setFormData({ ...formData, phone: e.target.value })
+                            }
+                          />
 
-                      {!otpSent && (
-                        <button
-                          onClick={handleSendOtp}
-                          disabled={loadingOtp || formData.phone.length !== 10}
-                          className="absolute right-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
-                        >
-                          {loadingOtp ? "Sending..." : "Send OTP"}
-                        </button>
-                      )}
+                          {!otpSent && (
+                            <button
+                              onClick={handleSendOtp}
+                              disabled={loadingOtp || formData.phone.length !== 10}
+                              className="absolute right-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
+                            >
+                              {loadingOtp ? "Sending..." : "Send OTP"}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* OTP Verify */}
+                        {otpSent && !otpVerified && (
+                          <div className="flex gap-2 mt-3 items-center">
+                            <input
+                              type="number"
+                              placeholder="Enter OTP"
+                              value={otp}
+                              onChange={(e) => setOtp(e.target.value)}
+                              className="flex-1 border rounded-lg px-2 py-1.5 text-sm"
+                            />
+                            <button
+                              onClick={verifyOtp}
+                              disabled={loadingOtp}
+                              className="text-xs bg-indigo-600 text-white px-3 py-1.5 h-min rounded-full cursor-pointer"
+                            >
+                              {loadingOtp ? "Verifying..." : "Verify"}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )
+                      :
+                      <div className="relative flex items-center">
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                        ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phone: e.target.value })
+                          }
+                          placeholder="Mobile Number"
+                          disabled={otpVerified || !!token}
+                          required
+                        />
+                      </div>
+                    }
+                    {otpVerified && (
+                      <p className="text-green-600 text-xs text-right mt-px">
+                        ✔ Mobile number verified
+                      </p>
+                    )}
+                    {error && (
+                      <p className="text-red-500 text-xs text-right">
+                        {error}
+                      </p>
+                    )}
+                    <div className="flex flex-col gap-3 mt-3">
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                      ${fieldErrors.name ? "border-red-500" : "border-gray-300"}`}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        required
+                      />
+                      <input
+                        type="email"
+                        placeholder="Email Address"
+                        className={`w-full border rounded-lg px-2 py-1.5 text-sm
+                      ${fieldErrors.email ? "border-red-500" : "border-gray-300"}`}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+
+                        required
+                      />
+                      <textarea
+                        rows={2}
+                        placeholder="Address"
+                        className={`w-full border rounded-lg px-2 py-1.5 text-sm resize-none
+                      ${fieldErrors.address ? "border-red-500" : "border-gray-300"}`}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+
+                        required
+                      />
                     </div>
 
-                    {/* OTP Verify */}
-                    {otpSent && !otpVerified && (
-                      <div className="flex gap-2 mt-3 items-center">
-                        <input
-                          type="number"
-                          placeholder="Enter OTP"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          className="flex-1 border rounded-lg px-2 py-1.5 text-sm"
-                        />
-                        <button
-                          onClick={verifyOtp}
-                          disabled={loadingOtp}
-                          className="text-xs bg-indigo-600 text-white px-3 py-1.5 h-min rounded-full cursor-pointer"
-                        >
-                          {loadingOtp ? "Verifying..." : "Verify"}
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )
-                  :
-                  <div className="relative flex items-center">
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      className={`w-full border rounded-lg px-2 py-1.5 text-sm
-                        ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      placeholder="Mobile Number"
-                      disabled={otpVerified || !!token}
-                      required
-                    />
-                  </div>
-                }
-                {otpVerified && (
-                  <p className="text-green-600 text-xs text-right mt-px">
-                    ✔ Mobile number verified
-                  </p>
-                )}
-                {error && (
-                  <p className="text-red-500 text-xs text-right">
-                    {error}
-                  </p>
-                )}
-                <div className="flex flex-col gap-3 mt-3">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    className={`w-full border rounded-lg px-2 py-1.5 text-sm
-                      ${fieldErrors.name ? "border-red-500" : "border-gray-300"}`}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    className={`w-full border rounded-lg px-2 py-1.5 text-sm
-                      ${fieldErrors.email ? "border-red-500" : "border-gray-300"}`}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-
-                    required
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="Address"
-                    className={`w-full border rounded-lg px-2 py-1.5 text-sm resize-none
-                      ${fieldErrors.address ? "border-red-500" : "border-gray-300"}`}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
-
-                    required
-                  />
-                </div>
-
-                <p className="text-[10px] text-center text-gray-400 mt-4 mb-1">
-                  Secure payment powered by Razorpay
-                </p>
-                <button
-                  disabled={loadingPay || !isFormValid() || (!token && !otpVerified)}
-                  onClick={handlePayment}
-                  className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 
+                    <p className="text-[10px] text-center text-gray-400 mt-4 mb-1">
+                      Secure payment powered by Razorpay
+                    </p>
+                    <button
+                      disabled={loadingPay || !isFormValid() || (!token && !otpVerified)}
+                      onClick={handlePayment}
+                      className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 
                     disabled:bg-indigo-200 disabled:cursor-not-allowed 
                     hover:shadow-md duration-300 text-white py-2 rounded-full
                   "
-                >
-                  {loadingPay ? "Processing..." : "Proceed payment"}
-                </button>
+                    >
+                      {loadingPay ? "Processing..." : "Proceed payment"}
+                    </button>
 
-                {/* <button
+                    {/* <button
                   disabled={loadingPay || (!getToken && !otpVerified) || validateFields}
                   onClick={handlePayment}
                   className="text-sm w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 disabled:cursor-not-allowed hover:shadow-md duration-300 text-white py-2 rounded-full cursor-pointer"
                 >
                   {loadingPay ? "Processing..." : "Proceed payment"}
                 </button> */}
-                <p className="text-[10px] text-center text-gray-400 mt-1">
-                  By continuing, you agree to our Terms & Privacy Policy
-                </p>
-              </div>
-            </div>
+                    <p className="text-[10px] text-center text-gray-400 mt-1">
+                      By continuing, you agree to our Terms & Privacy Policy
+                    </p>
+                  </div>
+                </div>
+              </>
+            }
           </div>
         </div>
       </div>
