@@ -184,13 +184,19 @@ const Page = () => {
             <table className="w-full bg-white border-collapse">
               <thead className="bg-gray-100 text-gray-600">
                 <tr className="text-sm">
-                  <th className="px-3 py-3 text-left font-medium">Booking Date</th>
+                  <th className="px-3 py-3 text-left font-medium">
+                    Booking Date
+                  </th>
                   <th className="px-3 py-3 text-left font-medium">Name</th>
                   <th className="px-3 py-3 text-left font-medium">Email</th>
-                  <th className="px-3 py-3 text-center font-medium">Items Count</th>
+                  <th className="px-3 py-3 text-center font-medium">
+                    Items Count
+                  </th>
                   <th className="px-3 py-3 text-center font-medium">Amount</th>
                   <th className="px-3 py-3 text-center font-medium">Status</th>
-                  <th className="px-3 py-3 text-center font-medium">Download</th>
+                  <th className="px-3 py-3 text-center font-medium">
+                    Download
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -217,13 +223,26 @@ const Page = () => {
                         {booking.status}
                       </td>
                       <td className="p-3 flex justify-center">
-                        <Download className="text-indigo-600 cursor-pointer" size={16} />
+                        <a
+                          href={`https://vsc-api.adventurethrillcity.com/pdfs/Booking_${booking._id}.pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                        >
+                          <Download
+                            className="text-indigo-600 cursor-pointer hover:text-indigo-800"
+                            size={16}
+                          />
+                        </a>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="text-center py-4 text-sm text-gray-500">
+                    <td
+                      colSpan={7}
+                      className="text-center py-4 text-sm text-gray-500"
+                    >
                       No bookings found
                     </td>
                   </tr>
