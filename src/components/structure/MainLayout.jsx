@@ -23,7 +23,7 @@ function MainLayout({ children }) {
       {/* Header */}
       <header className="fixed top-3 max-w-5xl w-full z-10 bg-transparent flex items-center justify-center px-4 sm:px-7">
         <div className="w-full bg-black/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
-          <a href="https://www.vishwanadhsportsclub.in/" target="_blank">
+          <a href="/">
             <img src="https://www.vishwanadhsportsclub.in/assets/logo-HJQU3g0R.png" alt="Logo" className="w-10" />
           </a>
 
