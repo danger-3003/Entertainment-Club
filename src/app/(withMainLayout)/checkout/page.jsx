@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import useEventCartStore from "@/store/useEventCartStore";
 import useUserStore from "@/store/useUserStore";
 import useBookingStatus from "@/store/useBookingStatus";
+import SavingsBanner from "@/components/common/SavingsBanner";
 
 const RAZORPAY_PUBLIC_KEY_ID =
   process.env.NEXT_PUBLIC_RAZORPAY_PUBLIC_KEY_ID;
@@ -240,9 +241,14 @@ export default function PaymentPage() {
     }
   };
 
+  console.log(new Date().toISOString());
+
   return (
     <>
       <div className="max-w-5xl w-full flex flex-col gap-4 px-4 sm:px-7 mb-10 mt-24">
+        <SavingsBanner
+          discountAmount={discount}
+        />
         <div className="h-32 p-2 px-5 w-full bg-gray-100 rounded-xl shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold uppercase">
@@ -307,7 +313,7 @@ export default function PaymentPage() {
                             </td>
 
                             <td className="px-6 py-3 text-center font-semibold text-indigo-600">
-                              ₹{itemTotal}
+                              <span className="font-sans">₹</span>{itemTotal}
                             </td>
                           </tr>
                         );
@@ -366,27 +372,27 @@ export default function PaymentPage() {
                         </tr>
                         <tr>
                           <td>Subtotal</td>
-                          <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
+                          <td className="text-right py-1"><span className="font-sans">₹</span>{subTotal.toFixed(2)}</td>
                         </tr>
                         {
                           isCouponApplied &&
                           <tr>
                             <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
                             <td className="text-right py-1 text-red-500">
-                              -₹{discount.toFixed(2)}
+                              -<span className="font-sans">₹</span>{discount.toFixed(2)}
                             </td>
                           </tr>
                         }
                         <tr>
                           <td>GST (18%)</td>
                           <td className="text-right py-1 text-green-600">
-                            +₹{gst.toFixed(2)}
+                            +<span className="font-sans">₹</span>{gst.toFixed(2)}
                           </td>
                         </tr>
                         <tr className="font-semibold">
                           <td>Total Payable</td>
                           <td className="text-right py-1 text-indigo-600">
-                            ₹{total.toFixed(2)}
+                            <span className="font-sans">₹</span>{total.toFixed(2)}
                           </td>
                         </tr>
                       </tbody>
@@ -401,6 +407,7 @@ export default function PaymentPage() {
                       className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
                     ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
                       value={formData.bookingDate}
+                      min={new Date().toISOString().split("T")[0]}
                       onChange={(e) =>
                         setFormData({ ...formData, bookingDate: e.target.value })
                       }

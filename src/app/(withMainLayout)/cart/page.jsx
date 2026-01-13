@@ -2,23 +2,23 @@
 "use client";
 
 import React, { useState } from "react";
-import useEventCartStore from "@/store/useEventCartStore";
 import { useRouter } from "next/navigation";
+import useEventCartStore from "@/store/useEventCartStore";
+import SavingsBanner from "@/components/common/SavingsBanner";
 
 function CartSummary() {
 
   const router = useRouter();
 
   const cartData = useEventCartStore((state) => state.selectedEvents);
-  const setCouponStore = useEventCartStore((state) => state.setIsCouponApplied);
+  const setIsCouponApplied = useEventCartStore((state) => state.setIsCouponApplied);
+  const isCouponApplied = useEventCartStore((state) => state.isCouponApplied);
   const setSelectedEvents = useEventCartStore(
     (state) => state.setSelectedEvents
   );
 
   const COUPON_MIN_AMOUNT = 1000;
   const COUPON_DISCOUNT_PERCENT = 30;
-
-  const [isCouponApplied, setIsCouponApplied] = useState(false);
 
   const handleIncreaseCount = (id, type) => {
     setSelectedEvents((prev) =>
@@ -79,6 +79,14 @@ function CartSummary() {
 
   return (
     <div className="max-w-5xl w-full flex flex-col gap-4 px-4 sm:px-7 mb-10 mt-24">
+      {/* {
+        discount > 0 && */}
+      <>
+        <SavingsBanner
+          discountAmount={discount}
+        />
+      </>
+      {/* } */}
       <div className="h-32 p-2 px-5 w-full bg-gray-100 rounded-xl shadow-sm flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold uppercase">
@@ -163,7 +171,7 @@ function CartSummary() {
                           </td>
 
                           <td className="px-6 py-3 text-center font-semibold text-indigo-600">
-                            ₹{itemTotal}
+                            <span className="font-sans">₹</span>{itemTotal}
                           </td>
                         </tr>
                       );
@@ -193,7 +201,7 @@ function CartSummary() {
                     <div className="flex items-end justify-between gap-2 flex-col">
                       <p className="text-sm text-right font-medium">Get 30% OFF on orders above ₹999</p>
                       <button
-                        onClick={() => { setIsCouponApplied(!isCouponApplied); setCouponStore(!isCouponApplied) }}
+                        onClick={() => { setIsCouponApplied(!isCouponApplied); }}
                         className="cursor-pointer text-[10px] sm:text-xs font-medium rounded-full px-3 sm:px-5 py-0.5 sm:py-1 border border-white bg-white/30 hover:shadow-sm duration-300"
                       >
                         {isCouponApplied ? "Applied" : "Apply"}
@@ -222,27 +230,27 @@ function CartSummary() {
                     </tr>
                     <tr>
                       <td>Subtotal</td>
-                      <td className="text-right py-1">₹{subTotal.toFixed(2)}</td>
+                      <td className="text-right py-1"><span className="font-sans">₹</span>{subTotal.toFixed(2)}</td>
                     </tr>
                     {
                       isCouponApplied &&
                       <tr>
                         <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
                         <td className="text-right py-1 text-red-500">
-                          -₹{discount.toFixed(2)}
+                          -<span className="font-sans">₹</span>{discount.toFixed(2)}
                         </td>
                       </tr>
                     }
                     <tr>
                       <td>GST (18%)</td>
                       <td className="text-right py-1 text-green-600">
-                        +₹{gst.toFixed(2)}
+                        +<span className="font-sans">₹</span>{gst.toFixed(2)}
                       </td>
                     </tr>
                     <tr className="font-semibold">
                       <td>Total Payable</td>
                       <td className="text-right py-1 text-indigo-600">
-                        ₹{total.toFixed(2)}
+                        <span className="font-sans">₹</span>{total.toFixed(2)}
                       </td>
                     </tr>
                   </tbody>

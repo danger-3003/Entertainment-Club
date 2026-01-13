@@ -46,7 +46,9 @@ const Page = () => {
 
   /* ---------- FETCH BOOKINGS ---------- */
   useEffect(() => {
-    if (!mounted || !user?.id || !otpVerified) return;
+    if (!mounted) return;
+    if (!token) return;
+    if (!user?.id) return;
 
     const fetchBookings = async () => {
       try {
@@ -62,7 +64,8 @@ const Page = () => {
     };
 
     fetchBookings();
-  }, [mounted, user, otpVerified]);
+  }, [mounted, token, user?.id]);
+
 
   /* ---------- SEND OTP ---------- */
   const handleSendOtp = async () => {
@@ -160,14 +163,25 @@ const Page = () => {
                   disabled={loadingOtp}
                   className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
                 >
-                  {loadingOtp ? "Verifying..." : "Verify"}
+                  Verify
                 </button>
               </div>
             )}
-
             {errorOtp && (
               <p className="text-red-500 text-xs text-right">{errorOtp}</p>
             )}
+            {
+              otpSent &&
+              <div className="flex items-center justify-end mt-5">
+                <button
+                  onClick={handleSendOtp}
+                  className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
+                >
+                  Resend OTP
+                </button>
+              </div>
+            }
+
           </div>
         </div>
       )}

@@ -7,6 +7,8 @@ import CardSwiper from "@/components/swiper/CardSwiper";
 import Hero from "@/components/structure/Hero";
 import Gallery from "@/components/structure/Gallery";
 import useBookingStatus from "@/store/useBookingStatus";
+import Cookies from "js-cookie";
+import useUserStore from "@/store/useUserStore";
 
 function Page() {
   const {
@@ -19,7 +21,10 @@ function Page() {
     resetBooking
   } = useBookingStatus();
 
+  const { resetUser } = useUserStore();
+
   const [categories, setCategories] = useState([]);
+  const token = Cookies.get("token");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -34,11 +39,11 @@ function Page() {
     fetchEvents();
   }, []);
 
-  // useEffect(() => {
-  //   if (booking) {
-  //     resetBooking()
-  //   }
-  // }, [booking]);
+  useEffect(() => {
+    if (!token) {
+      resetUser()
+    }
+  }, [resetUser, token]);
 
   const toggleSelectEvent = (event, type) => {
     setSelectedEvents((prev) => {
