@@ -122,7 +122,7 @@ const Page = () => {
 
   return (
     <>
-      {!otpVerified && (
+      {(!user?.id || !token) && (
         <div className="bg-black/50 w-full h-screen fixed top-0 z-10 flex items-center justify-center">
           <div className="bg-white rounded-xl md:rounded-2xl w-72 sm:w-80 p-5 shadow-2xl flex flex-col gap-3">
             <p className="text-center text-sm mb-2">

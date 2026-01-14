@@ -45,24 +45,20 @@ function Page() {
     }
   }, [resetUser, token]);
 
-  const toggleSelectEvent = (event, type) => {
+  const addEvent = (event, type) => {
     setSelectedEvents((prev) => {
       const existingEvent = prev.find((e) => e.id === event._id);
 
-      // If event already exists in cart
       if (existingEvent) {
-        const updatedCount = {
-          ...existingEvent.count,
-          [type]: existingEvent.count[type] > 0 ? 0 : 1,
-        };
-
-        if (updatedCount.adult === 0 && updatedCount.kid === 0) {
-          return prev.filter((e) => e.id !== event._id);
-        }
-
         return prev.map((e) =>
           e.id === event._id
-            ? { ...e, count: updatedCount }
+            ? {
+              ...e,
+              count: {
+                ...e.count,
+                [type]: e.count[type] + 1,
+              },
+            }
             : e
         );
       }
@@ -94,7 +90,7 @@ function Page() {
 
   return (
     <>
-      <div className="w-screen flex flex-col items-center gap-10">
+      <div className="w-full flex flex-col items-center gap-10">
         <div className="w-full">
           <Hero />
         </div>
@@ -106,7 +102,7 @@ function Page() {
                 selectedEvents={selectedEvents}
                 category={category}
                 isSelected={isSelected}
-                onSelect={toggleSelectEvent}
+                onSelect={addEvent}
               />
             </section>
           ))}

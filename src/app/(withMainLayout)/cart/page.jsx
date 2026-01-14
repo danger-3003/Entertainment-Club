@@ -140,9 +140,9 @@ function CartSummary() {
                                       {type}
                                     </span>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 border-2 border-gray-300 rounded-lg">
                                       <button
-                                        className="size-6 bg-indigo-600 text-white rounded-full disabled:opacity-50"
+                                        className="size-6 bg-text-600 disabled:opacity-50 cursor-pointer"
                                         disabled={item.count[type] === 0}
                                         onClick={() =>
                                           handleDecreaseCount(item.id, type)
@@ -156,7 +156,7 @@ function CartSummary() {
                                       </span>
 
                                       <button
-                                        className="size-6 bg-indigo-600 text-white rounded-full"
+                                        className="size-6 bg-text-600 disabled:opacity-50 cursor-pointer"
                                         onClick={() =>
                                           handleIncreaseCount(item.id, type)
                                         }
@@ -233,7 +233,7 @@ function CartSummary() {
                       <td className="text-right py-1"><span className="font-sans">₹</span>{subTotal.toFixed(2)}</td>
                     </tr>
                     {
-                      isCouponApplied &&
+                      (isCouponApplied && subTotal > 999) &&
                       <tr>
                         <td>Discount ({COUPON_DISCOUNT_PERCENT}%)</td>
                         <td className="text-right py-1 text-red-500">

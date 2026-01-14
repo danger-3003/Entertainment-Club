@@ -37,14 +37,14 @@ function CardSwiper({ category, isSelected, onSelect, selectedEvents }) {
       <div className="flex items-center justify-end gap-4 mb-4">
         <button
           ref={prevRef}
-          className="size-7 rounded-full border flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+          className="size-7 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 cursor-pointer hover:shadow-lg duration-300"
         >
           <ChevronLeft size={16} />
         </button>
 
         <button
           ref={nextRef}
-          className="size-7 rounded-full border flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+          className="size-7 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 cursor-pointer hover:shadow-lg duration-300"
         >
           <ChevronRight size={16} />
         </button>

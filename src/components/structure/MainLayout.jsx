@@ -5,6 +5,7 @@ import React from "react";
 import useEventCartStore from "@/store/useEventCartStore";
 import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
+import Link from "next/link";
 
 function MainLayout({ children }) {
   const selectedStoreEvents = useEventCartStore(
@@ -19,13 +20,13 @@ function MainLayout({ children }) {
   }, 0);
 
   return (
-    <div className="w-full flex items-center justify-center">
+    <div className="w-full flex items-center justify-center flex-col">
       {/* Header */}
       <header className="fixed top-3 max-w-5xl w-full z-10 bg-transparent flex items-center justify-center px-4 sm:px-7">
-        <div className="w-full bg-black/50 backdrop-blur-xl flex items-center justify-between py-4 px-4 sm:px-7 rounded-2xl">
-          <a href="/">
-            <img src="https://www.vishwanadhsportsclub.in/assets/logo-HJQU3g0R.png" alt="Logo" className="w-10" />
-          </a>
+        <div className="w-full bg-black/50 backdrop-blur-xl flex items-center justify-between py-1 px-4 sm:px-7 rounded-2xl">
+          <Link href="/">
+            <img src="/logo.png" alt="Logo" className="w-12" />
+          </Link>
 
           <div className="flex items-center gap-3">
             <div onClick={() => { router.push("/my-orders") }} className="text-sm cursor-pointer group text-center text-white">
@@ -48,7 +49,12 @@ function MainLayout({ children }) {
           </div>
         </div>
       </header>
-      {children}
+      <div className="min-h-[calc(100vh-40px)] w-full flex justify-center">
+        {children}
+      </div>
+      <footer className="bg-black py-4 px-5 w-full flex items-center justify-center text-white text-sm">
+        <p>Made with ❤️ by Adventure Thrill City.</p>
+      </footer>
     </div >
   );
 }

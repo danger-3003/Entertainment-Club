@@ -34,7 +34,7 @@ function EventCard({ event, isSelected, onSelect, selectedEvents }) {
                   {
                     count > 0 ?
                       <>
-                        Added <Check size={14} />
+                        Added ({count})
                       </> :
                       <>
                         Cart <Plus size={14} />
