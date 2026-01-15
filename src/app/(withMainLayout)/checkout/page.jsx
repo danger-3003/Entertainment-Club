@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRazorpay } from "react-razorpay";
 import { sendOtp, verifyOtpApi, createOrderApi, eventBooking } from "@/services/handlers";
+import { Plus } from "lucide-react";
 import Cookies from "js-cookie";
 import useEventCartStore from "@/store/useEventCartStore";
 import useUserStore from "@/store/useUserStore";
@@ -246,19 +247,21 @@ export default function PaymentPage() {
   return (
     <>
       <div className="max-w-5xl w-full flex flex-col gap-4 px-4 sm:px-7 mb-10 mt-24">
-        <SavingsBanner
-          discountAmount={discount}
-        />
         <div className="h-32 p-2 px-5 w-full bg-gray-100 rounded-xl shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold uppercase">
               Checkout
             </h2>
-            <p className="text-sm">Enjoy 30% instant discount on your total bill when you spend ₹999 or more.</p>
           </div>
           <img src="/CartHeader.svg" alt="CartHeader" className="w-32" />
         </div>
-        <div className="flex flex-col md:flex-row gap-5">
+        <>
+          <SavingsBanner
+            discountAmount={discount}
+          />
+          <p className="text-xs sm:text-sm">Enjoy 30% instant discount on your total bill when you spend ₹999 or more.</p>
+        </>
+        <div className="flex flex-col md:flex-row gap-10 md:gap-5">
           {/* TABLE */}
           <div className="w-full">
             <div className="overflow-hidden rounded-xl shadow-sm w-full h-min">
@@ -266,8 +269,8 @@ export default function PaymentPage() {
                 <table className="w-full bg-white border-collapse">
                   <thead className="bg-gray-100 text-gray-600">
                     <tr className="text-sm">
-                      <th className="px-6 py-3 text-left font-medium">Name</th>
-                      <th className="px-6 py-3 text-center font-medium">Count</th>
+                      <th className="px-4 py-3 text-left font-medium">Name</th>
+                      <th className="px-4 py-3 text-center font-medium">Count</th>
                       <th className="px-6 py-3 text-center font-medium">Amount</th>
                     </tr>
                   </thead>
@@ -284,7 +287,7 @@ export default function PaymentPage() {
                             key={item.id}
                             className="border-t border-gray-200 text-sm hover:bg-gray-50"
                           >
-                            <td className="px-6 py-3 font-medium">
+                            <td className="px-4 py-3 font-medium text-sm">
                               {item.name}
                             </td>
 
@@ -325,12 +328,12 @@ export default function PaymentPage() {
                   }
                 </table>
               </div>
+              <p className="ml-2 my-2 cursor-pointer text-indigo-600 hover:text-indigo-700 duration-300 text-xs flex items-center gap-1" onClick={() => { router.push("/") }}><Plus size={14} />Add more items</p>
             </div>
-            <p className="mt-3 underline cursor-pointer text-indigo-600 text-sm" onClick={() => { router.push("/") }}>Go home to book more.</p>
           </div>
 
           {/* SUMMARY */}
-          <div className="sticky top-20 md:max-w-sm w-full flex flex-col gap-5">
+          <div className="sticky top-20 md:max-w-sm w-full flex flex-col gap-10 md:gap-5">
             <div>
               <p className="font-medium text-gray-600 uppercase text-sm pb-3">Coupons & Offers</p>
               <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
@@ -407,6 +410,7 @@ export default function PaymentPage() {
                       className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
                     ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
                       value={formData.bookingDate}
+                      placeholder="Booking date"
                       min={new Date().toISOString().split("T")[0]}
                       onChange={(e) =>
                         setFormData({ ...formData, bookingDate: e.target.value })

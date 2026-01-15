@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { getUserBookings, verifyOtpApi, sendOtp } from "@/services/handlers";
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import useUserStore from "@/store/useUserStore";
 
 const Page = () => {
@@ -142,7 +142,7 @@ const Page = () => {
                 <button
                   onClick={handleSendOtp}
                   disabled={loadingOtp || phone.length !== 10}
-                  className="absolute right-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full cursor-pointer"
+                  className={`absolute right-2 text-xs ${otpSent ? "bg-indigo-400" : "bg-indigo-600"} text-white px-3 py-1.5 rounded-full cursor-pointer`}
                 >
                   {loadingOtp ? "Sending..." : "Send OTP"}
                 </button>
@@ -150,7 +150,7 @@ const Page = () => {
             </div>
 
             {otpSent && (
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center w-full">
                 <input
                   type="number"
                   placeholder="Enter OTP"
@@ -202,7 +202,7 @@ const Page = () => {
                     Booking Date
                   </th>
                   <th className="px-3 py-3 text-left font-medium">Name</th>
-                  <th className="px-3 py-3 text-left font-medium">Email</th>
+                  {/* <th className="px-3 py-3 text-left font-medium">Email</th> */}
                   <th className="px-3 py-3 text-center font-medium">
                     Items Count
                   </th>
@@ -226,7 +226,7 @@ const Page = () => {
                       <td className="px-2 py-3 font-medium min-w-48">
                         {booking.name}
                       </td>
-                      <td className="px-2 py-3">{booking.email}</td>
+                      {/* <td className="px-2 py-3">{booking.email}</td> */}
                       <td className="px-2 py-3 text-center">
                         {booking.items.length}
                       </td>
@@ -254,7 +254,7 @@ const Page = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="text-center py-4 text-sm text-gray-500"
                     >
                       No bookings found
@@ -264,14 +264,8 @@ const Page = () => {
               </tbody>
             </table>
           </div>
+          <p className="ml-2 my-2 cursor-pointer text-indigo-600 hover:text-indigo-700 duration-300 text-xs flex items-center gap-1" onClick={() => { router.push("/") }}><Plus size={14} />Add more items</p>
         </div>
-
-        <p
-          className="underline cursor-pointer text-indigo-600 text-sm"
-          onClick={() => router.push("/")}
-        >
-          Go home to book more.
-        </p>
       </div>
     </>
   );

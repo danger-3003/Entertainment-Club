@@ -8,7 +8,7 @@ function SavingsBanner({ discountAmount }) {
     <div className='w-full px-3 py-2 flex items-center justify-start border border-emerald-500 text-emerald-500 rounded-lg bg-emerald-50'>
       <div className='flex items-center justify-start flex-row gap-3'>
         <Sparkles className='' size={14} />
-        <p className=''><span className='font-semibold'><span className="font-sans">₹</span>{discountAmount.toFixed(2)} saved!</span> On this booking</p>
+        <p className='text-sm md:text-base'><span className='font-semibold'><span className="font-sans">₹</span>{discountAmount.toFixed(2)} saved!</span> On this booking</p>
       </div>
     </div>
   )
