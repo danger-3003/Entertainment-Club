@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useRazorpay } from "react-razorpay";
 import { sendOtp, verifyOtpApi, createOrderApi, eventBooking } from "@/services/handlers";
 import { Plus } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar"
 import Cookies from "js-cookie";
 import useEventCartStore from "@/store/useEventCartStore";
 import useUserStore from "@/store/useUserStore";
 import useBookingStatus from "@/store/useBookingStatus";
 import SavingsBanner from "@/components/common/SavingsBanner";
+import { CalendarUI } from "@/components/common/Calendar";
 
 const RAZORPAY_PUBLIC_KEY_ID =
   process.env.NEXT_PUBLIC_RAZORPAY_PUBLIC_KEY_ID;
@@ -67,6 +69,8 @@ export default function PaymentPage() {
   const [loadingPay, setLoadingPay] = useState(false);
   const [error, setError] = useState("");
 
+  console.log(user);
+
   const [formData, setFormData] = useState({
     bookingDate: "",
     phone: user.mobile,
@@ -103,6 +107,15 @@ export default function PaymentPage() {
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
+
+  useEffect(() => {
+    if (user?.mobile) {
+      setFormData((prev) => ({
+        ...prev,
+        phone: user.mobile,
+      }));
+    }
+  }, [user.mobile]);
 
   /* ---------------- SEND OTP ---------------- */
   const handleSendOtp = async () => {
@@ -241,8 +254,6 @@ export default function PaymentPage() {
       setLoadingPay(false);
     }
   };
-
-  console.log(new Date().toISOString());
 
   return (
     <>
@@ -404,18 +415,17 @@ export default function PaymentPage() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-600 uppercase text-sm pb-3">Booking Details</p>
-                  <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
-                    <input
-                      type="date"
-                      className={`w-full border rounded-lg px-2 py-1.5 text-sm mb-3 
-                    ${fieldErrors.bookingDate ? "border-red-500" : ""}`}
-                      value={formData.bookingDate}
-                      placeholder="Booking date"
-                      min={new Date().toISOString().split("T")[0]}
-                      onChange={(e) =>
-                        setFormData({ ...formData, bookingDate: e.target.value })
-                      }
-                    />
+                  <div className="bg-gray-50 p-4 rounded-xl shadow-sm w-full">
+                    {console.log(formData.bookingDate)}
+                    <div className="w-full mb-3">
+                      <CalendarUI
+                        selected={formData.bookingDate}
+                        minDate={new Date()}
+                        onSelect={(date) =>
+                          setFormData({ ...formData, bookingDate: date })
+                        }
+                      />
+                    </div>
                     {/* Show OTP section ONLY if no token */}
                     {!token && !otpVerified ? (
                       <>
@@ -471,11 +481,8 @@ export default function PaymentPage() {
                           value={formData.phone}
                           className={`w-full border rounded-lg px-2 py-1.5 text-sm
                         ${fieldErrors.phone ? "border-red-500" : "border-gray-300"}`}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
                           placeholder="Mobile Number"
-                          disabled={otpVerified || !!token}
+                          disabled={true}
                           required
                         />
                       </div>

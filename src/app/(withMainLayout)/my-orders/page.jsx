@@ -124,7 +124,7 @@ const Page = () => {
     <>
       {(!user?.id || !token) && (
         <div className="bg-black/50 w-full h-screen fixed top-0 z-10 flex items-center justify-center">
-          <div className="bg-white rounded-xl md:rounded-2xl w-72 sm:w-80 p-5 shadow-2xl flex flex-col gap-3">
+          <div className="bg-white rounded-xl md:rounded-2xl w-[90vw] max-w-80 sm:w-80 p-5 shadow-2xl flex flex-col gap-3">
             <p className="text-center text-sm mb-2">
               Verify your mobile number to view bookings
             </p>
@@ -156,7 +156,7 @@ const Page = () => {
                   placeholder="Enter OTP"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="flex-1 border rounded-lg p-2 text-sm"
+                  className="flex-1 border rounded-lg p-2 text-sm w-full"
                 />
                 <button
                   onClick={verifyOtp}
