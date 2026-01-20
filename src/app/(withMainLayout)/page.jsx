@@ -9,7 +9,7 @@ import Gallery from "@/components/structure/Gallery";
 import useBookingStatus from "@/store/useBookingStatus";
 import Cookies from "js-cookie";
 import useUserStore from "@/store/useUserStore";
-
+import { InlineWidget } from "react-calendly";
 function Page() {
   const {
     selectedEvents,
@@ -94,10 +94,15 @@ function Page() {
         <div className="w-full">
           <Hero />
         </div>
-        <div id="events" className="max-w-5xl w-full flex flex-col gap-10 px-4 sm:px-7 my-5 sm:my-10">
+        <div
+          id="events"
+          className="max-w-5xl w-full flex flex-col gap-10 px-4 sm:px-7 my-5 sm:my-10"
+        >
           {categories.map((category) => (
             <section key={category.categoryCode}>
-              <h2 className="flex items-center text-center w-full justify-center text-indigo-500 font-bold uppercase text-3xl md:text-4xl mb-5">{category.categoryName}</h2>
+              <h2 className="flex items-center text-center w-full justify-center text-indigo-500 font-bold uppercase text-3xl md:text-4xl mb-5">
+                {category.categoryName}
+              </h2>
               <CardSwiper
                 selectedEvents={selectedEvents}
                 category={category}
@@ -110,12 +115,23 @@ function Page() {
         <div className="max-w-5xl w-full flex items-center justify-center flex-col px-5 gap-5 mb-10">
           <Gallery />
         </div>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-6">
+          Schedule Your Training
+        </h2>
+
+        <div style={{ height: "700px", width: "100%" }}>
+          <InlineWidget
+            url="https://calendly.com/vishwanadhsportsclub/30min"
+            styles={{ height: "100%", minHeight: "700px" }}
+          />
+        </div>
       </div>
-      {
-        booking &&
+      {booking && (
         <div className="w-full h-screen bg-black/80 fixed top-0 z-10 flex items-center justify-center">
           <div className="bg-white rounded-xl md:rounded-2xl w-60 sm:w-80 h-40 p-5 shadow-2xl flex items-center justify-center flex-col gap-5">
-            <p className="text-center">Booking successful! Your ticket has been sent to your email.</p>
+            <p className="text-center">
+              Booking successful! Your ticket has been sent to your email.
+            </p>
             <button
               onClick={handleClosePopUp}
               className="text-sm w-32 bg-indigo-600 hover:bg-indigo-700 cursor-pointer
@@ -125,7 +141,7 @@ function Page() {
             </button>
           </div>
         </div>
-      }
+      )}
     </>
   );
 }
